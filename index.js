@@ -102,3 +102,65 @@ const updatedIp = async () => {
     );
   }
 };
+
+// formik image validation
+const valdationForm = Yup.object().shape({
+  image: Yup.mixed()
+    .required("Logo is Required!")
+    .test(
+      "fileSize",
+      "Your file is too big :(",
+      (value) => value && value.size <= 1024 * 1024 * 2
+      //1kb
+    ),
+});
+
+<Formik
+  initialValues={{
+    image: nul,
+  }}
+  onSubmit={(values, { resetForm }) => {
+    //reset for rest value
+    console.log(values);
+    alert(JSON.stringify(values, null, 2));
+    resetForm({ values: "" });
+  }}
+>
+  <Field
+    className="border p-1.5 placeholder:text-xs"
+    name="image"
+    component={LogoInput}
+    setFieldValue={setFieldValue}
+    onBlur={handleBlur}
+  />
+</Formik>;
+
+// in input components
+import React, { useState } from "react";
+
+export const LogoInput = (props) => {
+  const [fileName, setFileName] = useState("");
+
+  const handleVideoChange = (e) => {
+    console.log(e.target.files[0]);
+    e.preventDefault();
+    let reader = new FileReader();
+    let file = e.target.files[0];
+    if (file) {
+      reader.onloadend = () => setFileName(file.name);
+      reader.readAsDataURL(file);
+      props.setFieldValue(props.field.name, file);
+    }
+  };
+
+  return (
+    <form>
+      <input
+        name={props.field.name}
+        type="file"
+        accept="image/jpg, image/jpeg"
+        onChange={handleVideoChange}
+      />
+    </form>
+  );
+};
